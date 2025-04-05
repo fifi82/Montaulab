@@ -1,0 +1,97 @@
+#include <Adafruit_NeoPixel.h>
+
+#define nb_led 15 // nonbre de led 0 à 3 les 4 leds du backpack, 4 à 14 état de charge du Proton_Pack
+#define pin_led 3 // broche data des leds néopixel ws2812
+#define pin_bp1 4 // bouton tir
+#define pin_bp2 5 // masse du bouton
+
+Adafruit_NeoPixel pixels(nb_led, pin_led, NEO_GRB + NEO_KHZ800);
+
+
+int mled_4, led_4; // variables pour les 4 leds du backpack
+long c4[] = {0xff0000, 0x00ff00, 0x0000ff, 0xffff00}; // couleurs des 4 leds du backpack 
+int v1 = 500; // vitesse de défilement des 4 leds du backpack
+
+int Proton_Pack = 0; // état du Proton_Pack, 0=attente, 1=chargement,2=attente de tir, 3=tir en cour
+int pos;  // position de la led à allumer ou à éteindre du Proton_Pack 
+int v2 = 200; // vitesse de défilement pendant le chargement du Proton_Pack 
+int v3 = 10;  // vitesse de défilement pendant le tir Proton_Pack
+
+unsigned long t0,t1; // tempo
+
+void setup() {
+
+  pinMode(pin_bp1,INPUT_PULLUP); // bouton armement
+  pinMode(pin_bp2,OUTPUT); // bouton de tir
+
+  pixels.begin(); 
+   
+  pixels.clear(); // Set all pixel colors to 'off'
+  pixels.show();   // Send the updated pixel colors to the hardware.
+}
+
+void loop() {
+    
+  ////////////////////////////////////  animation des 4 leds du backpack  //////////////////////////////
+  led_4 = (millis() / v1)%4; // calcul de la led à allumer (0,1,2 ou 3 en fonction du temps)
+  if (led_4 != mled_4){ // si une nouvelle led doit être allumée (toute les v1 (500ms))
+    pixels.setPixelColor(mled_4 , 0x000000); // eteint la led mémorisé dans mled_4
+    pixels.setPixelColor(led_4 , c4[led_4]); // allume la led en position led_4 avec la couleur correspondente 
+    mled_4 = led_4;  // mémorise la led allumée pour l'éteindre par la suite   
+  }
+
+  /////////////////////////////////////  animation du Proton_Pack (fusil) ///////////////////////////////////////
+  if (Proton_Pack == 0){ // attente de chargement
+    if (!digitalRead(pin_bp1) ){ // si appuis sur le  bouton
+    Proton_Pack = 1; // chargement en cours
+    pos = 4; // 1ere led à allumer
+    }
+  }
+  else if (Proton_Pack == 1){  // recharge en cours   
+    if (  millis() > t1 ){ // si la tempo t1 est finie
+      t1 = millis() + v2; // réarme la tempo à V2 (200ms)
+      pixels.setPixelColor(pos ,0x00ff00 );
+      pos++;      // led suivante
+      if( pos > nb_led ) Proton_Pack = 2;// si toute les led sont allumée => attente de tir
+    }
+  }
+  else if (Proton_Pack == 2){// attente de tir
+    if ( !digitalRead(pin_bp1) ){  // si appuis sur le bouton 
+      Proton_Pack = 3; // tir en cours 
+      pos = 4;// 1ere led à éteindre
+    }
+  }
+  else if (Proton_Pack == 3){// tir en cours 
+    if ( millis() > t1 ){ // si la tempo t1 est finie
+      t1 = millis() + v3*3; // réarme la tempo à V3 (10ms)
+      pixels.setPixelColor(pos , 0xff0000 ); // éteind la led 
+      pos++; // led suivante 
+      if(pos == nb_led) {// si toutes les leds sont éteintes => attente de chargement
+        Proton_Pack = 4;
+        pos = 4;
+      } 
+
+    }
+  } 
+  else if (Proton_Pack == 4){// tir en cours 
+    if ( millis() > t1 ){ // si la tempo t1 est finie
+      t1 = millis() + v3; // réarme la tempo à V3 (10ms)
+      pixels.setPixelColor(pos , 0 ); // éteind la led 
+      pixels.setPixelColor(pos + 1, 0xffffff );// allume en blanc la led suivante
+      pos++; // led suivante 
+      if(pos == nb_led+1) Proton_Pack = 0; // si toutes les leds sont éteintes => attente de chargement
+    }
+  } 
+  
+  pixels.show(); // raffraichit le ruban de led
+
+}
+
+
+
+
+
+
+
+
+
