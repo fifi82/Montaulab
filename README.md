@@ -1,5 +1,5 @@
 # Montaulab
-divers proget pour le fablab de montauban<br>
+divers projet pour le fablab de montauban<br>
 
 projet_Proton_pack<br>
 15 néopixel ws2812, 0 à 3 sont les 4 led du backpack, les leds de 4 à 14 sont celle du fusil Proton_Pack<br>
