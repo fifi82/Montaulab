@@ -18,9 +18,9 @@ int Proton_Pack = 0; // état du Proton_Pack, 0=attente, 1=chargement,2=attente 
 int pos;  // position de la led à allumer ou à éteindre du Proton_Pack 
 int v2 = 200; // vitesse de défilement pendant le chargement du Proton_Pack 
 int v3 = 10;  // vitesse de défilement pendant le tir Proton_Pack
-int intencite;
-int i_max = 100;
-int dir = 1;
+int intencite; // pour la varialion de lumière en attente de tir
+int i_max = 100; // intencité maxi
+int dir = 1; // sens de la variation + ou -
 
 unsigned long t1; // tempo
 
