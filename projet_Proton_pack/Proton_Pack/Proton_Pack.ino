@@ -7,7 +7,7 @@
 #define pin_bp1 4 // bouton tir
 #define pin_bp2 5 // masse du bouton
 
-Adafruit_NeoPixel pixels(nb_led, pin_led, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(nb_led, pin_led, NEO_GRB + NEO_KHZ800); // prépare le ruban de led
 
 
 int mled_4, led_4; // variables pour les 4 leds du backpack
@@ -29,7 +29,7 @@ void setup() {
   pinMode(pin_bp1,INPUT_PULLUP); // bouton armement
   pinMode(pin_bp2,OUTPUT); // bouton de tir
 
-  pixels.begin(); 
+  pixels.begin(); // initialise le ruban de led
    
   pixels.clear(); // Set all pixel colors to 'off'
   pixels.show();   // Send the updated pixel colors to the hardware.
