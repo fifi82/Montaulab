@@ -9,6 +9,9 @@ un bouton pour le tir est branché entre D4 et D5 D4 c'est l'entrée et D5 sert 
 un appuis permet de recharger le Proton_Pack, un autre appuis permet de tirer.
 
 <img alt="Pronton Pack" src="https://live.staticflickr.com/193/491862718_144b6c2fd0_z.jpg" /><br>
+
+vidéo test: 'https://youtube.com/shorts/8Bw_O8ZP_mQ?si=r--A_Ym-5USlLReO'
+
 <br>
 
 
