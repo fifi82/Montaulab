@@ -65,6 +65,8 @@ int len,pos; // longeur du texte et position du texte
 
 int mpos_led, pos_led, dir_led=1;
 
+int r1,r2;
+
 /********************  setup *******************/
 void setup() {
 
@@ -119,18 +121,21 @@ void top_roue2(){
 /********************  loop *******************/
 void loop() {
   t0 = millis(); // mémorise le temps de référence
-
-  if      (etape == 0) etape0();
-  else if (etape == 1) etape1();
-  else if (etape == 2) etape2();
-  else if (etape == 3) etape3();
-  else if (etape == 4) etape4();  
+  
+  r1 = int( 1000.0/t1*400 );
+  r2 = int( 1000.0/t2*400 );
+  
+  if      (etape == 0) attente();
+  else if (etape == 1) choix();
+  else if (etape == 2) battle();
+  else if (etape == 3) speed1();
+  else if (etape == 4) speed2();  
 
 }
 
 
-/********************  etape0 *******************/
-void etape0(){ // attente
+/********************  attente *******************/
+void attente(){ // attente
 
   anim1();
 
@@ -149,16 +154,12 @@ void etape0(){ // attente
   lcd.print("Record " + String(int( 1000.0/record*400 ) )+ " mm/s   ") ;
     
   lcd.setCursor(0,1);
-  lcd.print( "R1:" +  String(int( 1000.0/t1*400 ) ) + " R2:" +  String(int( 1000.0/t2*400 ) ) + "      "); // un tour de roue = 400 mm
-  /*
-  lcd.print("r2 = ");
-  lcd.print( int( 1000.0/t2*400 ) );
-  lcd.print(" mm/s            ");
-*/
+  lcd.print( "R1:" +  String( r1 ) + " R2:" +  String( r2 ) + "      "); // un tour de roue = 400 mm
+
 }
 
-/********************  etape1 *******************/
-void etape1(){ // menu du jeu
+/********************  choix *******************/
+void choix(){ // menu du jeu
 
   clignotte(1); 
   clignotte(2); 
@@ -202,8 +203,8 @@ void etape1(){ // menu du jeu
 }
 
 
-/********************  etape2 *******************/
-void etape2(){ // battle
+/********************  battle *******************/
+void battle(){ // battle
   if(jeu==0) { // placement des roues
     lcd.setCursor(0,0);
     lcd.print("Battle R1 / R2  ");      
@@ -211,11 +212,11 @@ void etape2(){ // battle
     texte_long();  
     if(roue1) v1_on; else v1_off;
     if(roue2) v2_on; else v2_off;
-
     if(roue1 and roue2) {
       jeu=1; 
       t3 = t0 + 10000;
-      v1_on;
+      r1 = r2 = 0;
+      anim2();
     }     
   }
   else if (jeu==1){ // décompte avent début du jeu
@@ -227,6 +228,7 @@ void etape2(){ // battle
       jeu=2; 
       t3 = t0 + 5000;  
       max1 = 99999; // temps pour une rotation
+      r1 = r2 = 0;
     }
     if(!roue1 or !roue2) {
       jeu = 0;
@@ -234,11 +236,13 @@ void etape2(){ // battle
       v1_off;
       v2_off;
       pos = 0;
+      pixels.clear();
+      pixels.show();
     }
   } 
   else if (jeu==2){ // décompte avent début du jeu
     lcd.setCursor(0,0);
-    lcd.print( "R1:" +  String(int( 1000.0/t1*400 ) ) + " R2:" +  String(int( 1000.0/t2*400 ) ) + "      "); // un tour de roue = 400 mm
+    lcd.print( "R1:" +  String(r1 ) + " R2:" +  String(r2 ) + "      "); // un tour de roue = 400 mm
 
     lcd.setCursor(0,1);  
     lcd.print("Tournez ... " + String(1 + (t3 - t0)/1000 ) + "        ");
@@ -246,26 +250,45 @@ void etape2(){ // battle
       jeu = 3; // résultat
       t3 = t0 + 10000;          
     }
+    anim2();
   }
   else if (jeu==3){ // résultat
-    //  lcd.print( int( 1000.0/t1*400 ) ); // un tour de roue = 400 mm
+
     lcd.setCursor(0,0);
     lcd.print("record " + String(int( 1000.0/record*400 )) + " mm/s         ");
     lcd.setCursor(0,1);
     lcd.print("R1:" + String(int( 1000.0/max1*400 )) + " R2:" + String(int( 1000.0/max2*400 )) + "   "); 
+    if (r1<r2) {
+      for (int i=0; i<10; i++){
+        pixels.setPixelColor( i , 0x00ff00  );
+        pixels.show();
+      }
+    } else if (r1>r2){
+      for (int i=11; i<nb_led; i++){
+        pixels.setPixelColor( i , 0x00ff00  );
+        pixels.show();
+      }      
+    } else {
+      for (int i=0; i<nb_led; i++){
+        pixels.setPixelColor( i , 0x00ff00  );
+        pixels.show();
+      }      
+    }
+    
+    jeu = 4;
+  }
+  else if (jeu==4){ // attente avent de redémarrer
     if(t0>t3) {
       etape = 0;
       pos=0;
-    }
+    }  
   }
 
- 
-
-} // fin étape 2
+} // fin battle 2
 
 
-/********************  etape3 *******************/
-void etape3(){ // Speed solo roue1  
+/********************  speed1 *******************/
+void speed1(){ // Speed solo roue1  
 
   if(jeu==0) { // placement de la roue 1
     lcd.setCursor(0,0);
@@ -298,7 +321,7 @@ void etape3(){ // Speed solo roue1
   else if (jeu==2){ // décompte avant début du jeu
     lcd.setCursor(0,0);
     lcd.print("r1 = ");
-    lcd.print( int( 1000.0/t1*400 ) ); // un tour de roue = 400 mm
+    lcd.print( r1 ); // un tour de roue = 400 mm
     lcd.print(" mm/s         ");
     lcd.setCursor(0,1);  
     lcd.print("Tournez ... " +  String(1 + (t3 - t0)/1000 )+ "       ");
@@ -322,8 +345,8 @@ void etape3(){ // Speed solo roue1
 }
 
 
-/********************  etape4 *******************/
-void etape4(){ // Speed solo roue2 
+/********************  speed2 *******************/
+void speed2(){ // Speed solo roue2 
 
   if(jeu==0) { // placement de la roue 2
     lcd.setCursor(0,0);
@@ -345,6 +368,7 @@ void etape4(){ // Speed solo roue2
       jeu=2; 
       t3 = t0 + 5000;  
       max2 = 99999; // temps pour une rotation
+      pos_led = 10;
     }
     if(!roue2) {
       jeu = 0;
@@ -356,7 +380,7 @@ void etape4(){ // Speed solo roue2
   else if (jeu==2){ // décompte avent début du jeu
     lcd.setCursor(0,0);
     lcd.print("r2 = ");
-    lcd.print( int( 1000.0/t2*400 ) ); // un tour de roue = 400 mm
+    lcd.print( r2 ); // un tour de roue = 400 mm
     lcd.print(" mm/s         ");
     lcd.setCursor(0,1);  
     lcd.print("Tournez ... " +  String(1 + (t3 - t0)/1000 )+ "       ");
@@ -427,6 +451,7 @@ void init_jeu(){ // reset des variables
       jeu = 0;
 }
 
+
 /******************** anim1  *******************/
 void anim1(){ // animation des néopixels
   if (t0>tl1){
@@ -439,6 +464,28 @@ void anim1(){ // animation des néopixels
     mpos_led = pos_led;
     pixels.show();
   }
+}
+
+
+/******************** anim1  *******************/
+void anim2(){ // animation des néopixels
+
+  pos_led = 10 + (r1 - r2)/100;
+
+  if(pos_led>nb_led)pos_led = nb_led-2;
+  else if(pos_led<1)pos_led = 0;
+  pixels.setPixelColor( mpos_led ,0  );
+  pixels.setPixelColor( mpos_led + 1 ,0  );  
+
+  pixels.setPixelColor( pos_led , 0x00ff00  );
+  pixels.setPixelColor( pos_led +1 , 0x00ff00  );
+
+  mpos_led = pos_led;
+
+  pixels.show();
+
+  //Serial.println( (r2 - r1)/2000);
+
 }
 
 
