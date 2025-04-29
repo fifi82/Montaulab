@@ -1,5 +1,5 @@
 # Montaulab
-<img alt="QRcode" src="" />
+<img alt="QRcode" src="https://github.com/fifi82/Montaulab/blob/main/QRcode_montaulab.png?raw=true" />
 Divers projets pour le fablab de Montauban 82000... <br>
 https://montaulab.com/ <br>
 https://www.facebook.com/groups/577167497589183<br>
