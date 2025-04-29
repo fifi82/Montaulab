@@ -1,5 +1,7 @@
 # Montaulab
-Divers projets pour le fablab de Montauban 82000... https://montaulab.com/ <br>
+<img alt="QRcode" src="" />
+Divers projets pour le fablab de Montauban 82000... <br>
+https://montaulab.com/ <br>
 https://www.facebook.com/groups/577167497589183<br>
 
 <hr>
