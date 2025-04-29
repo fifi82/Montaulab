@@ -1,5 +1,6 @@
 #include <Adafruit_NeoPixel.h>  // https://github.com/adafruit/Adafruit_NeoPixel_ZeroDMA
 #include <LiquidCrystal_I2C.h>  // https://github.com/johnrickman/LiquidCrystal_I2C
+#include <EEPROM.h>
 
 LiquidCrystal_I2C lcd(0x27,16,2); // écran LCD 16x2
 
@@ -54,12 +55,15 @@ unsigned long t0,  // temps de refférence,
                tl1; // tempo 1 leds
                
 
-volatile byte etape = 0;  // état du jeu, 0=attente, 1=sélection du jeu,
+volatile byte etape = 0,  // état du jeu, 0=attente, 1=sélection du jeu,
+          nbt1,
+          nbt2;
 byte jeu = 0;  // état dans un jeu
 
-int menu;
+int menu, mrecord,nbt_record,mnbt_record;
+
 byte nb_menu = 4; 
-String t_menu[] = {"battle", "Speed Solo roue1", "Speed Solo roue2", "Voir le record"};
+String t_menu[] = {"Battle Nb de Tr", "Speed Solo roue1", "Speed Solo roue2", "Montaulab ..."};
 String  texte;
 int len,pos; // longeur du texte et position du texte
 
@@ -67,8 +71,9 @@ int mpos_led, pos_led, dir_led=1;
 
 int r1,r2;
 
+
 /********************  setup *******************/
-void setup() {
+void setup() { 
 
   attachInterrupt(digitalPinToInterrupt(pin_roue1), top_roue1, RISING);
   attachInterrupt(digitalPinToInterrupt(pin_roue2), top_roue2, RISING);
@@ -93,12 +98,20 @@ void setup() {
   pixels.clear();
   pixels.show();
 
+  byte b0  = EEPROM.read(0);
+  byte b1  = EEPROM.read(1);
+  record = mrecord = b0 * 256 + b1;
+
+  nbt_record = mnbt_record = EEPROM.read(2);
+
+
 }
 
 /********************  top_roue1 *******************/
 void top_roue1(){
   t1 =  millis() - mt1;
   mt1 = millis();
+  nbt1++;
   if(etape>1){
     if (t1 < max1) max1 = t1;
     if (t1 < record) record = t1;    
@@ -111,6 +124,7 @@ void top_roue1(){
 void top_roue2(){
   t2 = millis() - mt2;
   mt2 = millis();
+  nbt2++;
   if(etape>1){
     if (t2 < max2) max2 = t2;
     if (t2 < record) record = t2;    
@@ -122,8 +136,8 @@ void top_roue2(){
 void loop() {
   t0 = millis(); // mémorise le temps de référence
   
-  r1 = int( 1000.0/t1*400 );
-  r2 = int( 1000.0/t2*400 );
+  r1 = int( 1000.0/t1*400 ); // précalcul de la vitesse de la roue 1
+  r2 = int( 1000.0/t2*400 ); // précalcul de la vitesse de la roue 2
   
   if      (etape == 0) attente();
   else if (etape == 1) choix();
@@ -131,13 +145,15 @@ void loop() {
   else if (etape == 3) speed1();
   else if (etape == 4) speed2();  
 
+  if (record != mrecord) save_record(); // mémorise la vitesse record
+  if (nbt_record != mnbt_record) save_nbt_record(); // mémorise le nombre de tour record
 }
 
 
 /********************  attente *******************/
 void attente(){ // attente
 
-  anim1();
+  anim1(); // fait clignoter les néopixel
 
   clignotte(3); // faire clignotter le bouton 3
 
@@ -147,8 +163,6 @@ void attente(){ // attente
     pixels.clear();
     pixels.show();
   } 
-
-
 
   lcd.setCursor(0,0);
   lcd.print("Record " + String(int( 1000.0/record*400 ) )+ " mm/s   ") ;
@@ -161,19 +175,21 @@ void attente(){ // attente
 /********************  choix *******************/
 void choix(){ // menu du jeu
 
-  clignotte(1); 
-  clignotte(2); 
-  clignotte(3);
+  clignotte(1); // faire clignotter le bouton 1
+  clignotte(2); // faire clignotter le bouton 2 
+  clignotte(3); // faire clignotter le bouton 3
 
   if (bp1 and t0 > tbp){ // bouton 1 menu +
-    tbp = t0 + 300; // anti rebond
+    tbp = t0 + 300; // anti rebond des boutons
     menu ++;       // change le menu
     if (menu == nb_menu) menu = 0; // si fin de menu on recommance
-  } else if (bp2 and t0 > tbp){ // bouton 3 valide
+  }
+  else if (bp2 and t0 > tbp){ // bouton 3 valide
     tbp = t0 + 300; // anti rebond    
     menu --;
     if (menu < 0) menu = nb_menu - 1; // si fin de menu on recommance
-  } else if (bp3 and t0 > tbp){ // bouton 3 valide
+  }
+  else if (bp3 and t0 > tbp){ // bouton 3 valide
     v1_off;
     v2_off;
     v3_off;
@@ -226,12 +242,13 @@ void battle(){ // battle
     lcd.print("dans : " + String(1 + (t3 - t0)/1000 ) + "                     ");   
     if (t0>t3) { // start du jeu 1
       jeu=2; 
-      t3 = t0 + 5000;  
-      max1 = 99999; // temps pour une rotation
-      r1 = r2 = 0;
+      t3 = t0 + 5000;  // durée du jeu
+      max1 = 99999; // init temps pour une rotation
+      r1 = r2 = 0;  // init vitesse de rotation
+      nbt1 = nbt2 = 0;
     }
-    if(!roue1 or !roue2) {
-      jeu = 0;
+    if(!roue1 or !roue2) { // si les roues ne sont pas en position de départ
+      jeu = 0; // attente placement des roues
       t3 = t0 + 2000;
       v1_off;
       v2_off;
@@ -242,42 +259,45 @@ void battle(){ // battle
   } 
   else if (jeu==2){ // décompte avent début du jeu
     lcd.setCursor(0,0);
-    lcd.print( "R1:" +  String(r1 ) + " R2:" +  String(r2 ) + "      "); // un tour de roue = 400 mm
+    lcd.print( "R1:" +  String(nbt1 ) + " R2:" +  String( nbt2) + "      "); // un tour de roue = 400 mm
 
     lcd.setCursor(0,1);  
     lcd.print("Tournez ... " + String(1 + (t3 - t0)/1000 ) + "        ");
     if (t0>t3){
-      jeu = 3; // résultat
-      t3 = t0 + 10000;          
+      jeu = 3; // résultat   
+      int mnbt1=nbt1, mnbt2=nbt2;
+      if (mnbt1 > nbt_record) nbt_record = mnbt1;
+      if (mnbt2 > nbt_record) nbt_record = mnbt2;   
     }
     anim2();
   }
-  else if (jeu==3){ // résultat
-
+  else if (jeu==3){ // fin du jeu résultat
+    v1_off;
+    v2_off;
     lcd.setCursor(0,0);
-    lcd.print("record " + String(int( 1000.0/record*400 )) + " mm/s         ");
+    lcd.print("record " + String( nbt_record ) + " tours       ");
     lcd.setCursor(0,1);
-    lcd.print("R1:" + String(int( 1000.0/max1*400 )) + " R2:" + String(int( 1000.0/max2*400 )) + "   "); 
-    if (r1<r2) {
+    lcd.print("R1:" + String( nbt1) + " R2:" + String( nbt2 ) + "        "); 
+    if (nbt1<nbt2) { // si roue 2 gagne
       for (int i=0; i<10; i++){
-        pixels.setPixelColor( i , 0x00ff00  );
+        pixels.setPixelColor( i , 0x00aa00  );
         pixels.show();
       }
-    } else if (r1>r2){
+    } else if (nbt1>nbt2){ // si roue 1 gagne
       for (int i=11; i<nb_led; i++){
-        pixels.setPixelColor( i , 0x00ff00  );
+        pixels.setPixelColor( i , 0x00aa00  );
         pixels.show();
       }      
-    } else {
+    } else { // si égalité
       for (int i=0; i<nb_led; i++){
-        pixels.setPixelColor( i , 0x00ff00  );
+        pixels.setPixelColor( i , 0x00aa00  );
         pixels.show();
       }      
     }
-    
-    jeu = 4;
+    t3 = t0 + 10000; // 10 scondes
+    jeu = 4; // mode attente
   }
-  else if (jeu==4){ // attente avent de redémarrer
+  else if (jeu==4){ // attente avant de redémarrer
     if(t0>t3) {
       etape = 0;
       pos=0;
@@ -340,8 +360,7 @@ void speed1(){ // Speed solo roue1
       etape = 0;
     }   
   }
-// Serial.println(jeu); 
-  
+ 
 }
 
 
@@ -399,12 +418,6 @@ void speed2(){ // Speed solo roue2
     }   
   }
   
-}
-
-
-/********************  etape5 *******************/
-void etape5(){ //pas défini encore
-
 }
 
 
@@ -488,5 +501,16 @@ void anim2(){ // animation des néopixels
 
 }
 
+void save_record(){
+  byte b0 =  record / 256;              // 1er octet de la puissance
+  byte b1 =  record - (b0 * 256);         // 2eme octet de la puissance
+  EEPROM.write( 0, b0 );
+  EEPROM.write( 1, b1 );
+  mrecord = record;
+}
 
+void save_nbt_record(){
+  EEPROM.write( 2, nbt_record );
+  mnbt_record = nbt_record;
+}
 
