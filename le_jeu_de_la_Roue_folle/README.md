@@ -25,7 +25,7 @@ le but est de tourner la roue le plus vite possible ...
 -Speed Solo roue 2<br>
 -Montaulab …<br>
 
-- Battle Nb de Tr : tournez les roues pour allumer les voyants des boutons poussoir, attendre le 	décompte de 10 secondes, puis tournez les roues pour faire le plus de tours possible pendant	5 secondes. Que le meilleur gagne.
+- Battle Roue1 contre Roue2 : tournez les roues pour allumer les voyants des boutons poussoir, attendre le 	décompte de 10 secondes, puis tournez les roues le plus vite possible pendant 5 secondes. Que le meilleur gagne.
 
 - Speed Solo roue 1 : tournez la roue 1 pour allumer le  voyant du bouton  poussoir « + », attendre le décompte de 10 secondes, puis tournez la roue le plus vite possible pour établir un nouveau record.
 
