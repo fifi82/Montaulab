@@ -1,0 +1,21 @@
+
+broches :
+VDD :Sortie régulée de 2,8V 150Ma disponible
+     pour alimenter les composants externes.
+     (Si vous souhaitez contourner le régulateur interne,
+     vous pouvez à la place utiliser cette broche comme entrée
+     pour des tensions comprises entre 2,6 V et 3,5 V avec du VIN déconnecté.)
+
+VIN: Il s'agit de la principale connexion d'alimentation de 2,6 V à 5,5 V.
+    La tension SCL et SDA de l'I²C seront à ce niveau.
+
+GND: masse 0v
+
+SDA SCL: i2C
+
+XSHUT : cette broche est une entrée d'arrêt active-bas;
+    par défaut la broche est à VDD carte fonctionnelle.
+    à GND capteur en veille matérielle.
+    
+GPIO1 : Sortie d'interruption programmable
+    (niveau logique VDD). 
