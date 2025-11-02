@@ -11,11 +11,11 @@ Voiture autonome avec esp32 30broches<br>
 3 x lidar VL53L0 (i2c) <br>
 1 x servomoteur pour la direction<br>
 1 x ESC variateur moteur 2S<br>
-2 x 18650 batterie lithium ion
-1 x arrêt d'urgence
-1 x Step down LM2596
-1 x convertisseur de signal 5v <-> 3.3v
-1 x récepteur 4 voies 433MHz 5v
-1 x émetteur 4 voies 12v (télécommande)
+2 x 18650 batterie lithium ion<br>
+1 x arrêt d'urgence<br>
+1 x Step down LM2596<br>
+1 x convertisseur de signal 5v <-> 3.3v<br>
+1 x récepteur 4 voies 433MHz 5v<br>
+1 x émetteur 4 voies 12v (télécommande)<br><br>
 
 - Montaulab … : Affichage du site web du fablab, https://montaulab.com/<br><br>
