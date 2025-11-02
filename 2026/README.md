@@ -17,5 +17,6 @@ Voiture autonome avec esp32 30broches<br>
 1 x convertisseur de signal 5v <-> 3.3v<br>
 1 x récepteur 4 voies 433MHz 5v<br>
 1 x émetteur 4 voies 12v (télécommande)<br><br>
+1 x Capteur éffet Hall A3144 (comptage des tours de roue arrière)
 
 - Montaulab … : Affichage du site web du fablab, https://montaulab.com/<br><br>
