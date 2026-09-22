@@ -14,10 +14,13 @@ La communication entre la voiture et le PC se fait via le port USB/Série avec 3
 Il est possible de tester le programme avec les flèches du clavier du PC
 <br>
 <img alt="piste 3D" src="https://github.com/fifi82/Montaulab/blob/main/2027/visu_3.4_.jpg" /><br>
-
-<hr>
-
 <br>
+<br>
+les fichier .7z  contiennent les dépendances (son, objets 3D et textures)<br>
 
+le fichier "piste_3D_python_v3.5_.7z" à une vue de dessus sur la droite<br>
+
+le fichier "piste_3D_python_v3.4_.7z" à un menu sur la droite<br>
+<br>
+<br>
 <hr>
-
